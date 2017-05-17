@@ -1,7 +1,9 @@
-# 🏂 Lightweight Docker Image include Nginx with PageSpeed module
- [![Build Status](https://travis-ci.org/lagun4ik/docker-nginx-pagespeed.svg)](https://travis-ci.org/lagun4ik/docker-nginx-pagespeed)
+# Lightweight Docker Image include Nginx with PageSpeed and GEO IP module
+ 
+This docker image based on [Alpine](https://hub.docker.com/_/alpine/). 
+Alpine is based on [Alpine Linux](http://www.alpinelinux.org), lightweight Linux distribution based on [BusyBox](https://hub.docker.com/_/busybox/). 
 
-This docker image based on [Alpine](https://hub.docker.com/_/alpine/). Alpine is based on [Alpine Linux](http://www.alpinelinux.org), lightweight Linux distribution based on [BusyBox](https://hub.docker.com/_/busybox/). The size of the image is very small.
+The goal is to create a small docker Nginx image size, that is purposed to run a directory of vhosts sites with different PHP engine versions.
 
 ## PageSpeed
 The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze and optimize your site following web best practices.
@@ -11,13 +13,15 @@ The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze an
  - [`1.13.0`, `latest` (Dockerfile)](https://github.com/lagun4ik/docker-nginx-pagespeed/blob/master/Dockerfile)
  - [`1.11.13` (Dockerfile)](https://github.com/lagun4ik/docker-nginx-pagespeed/blob/1.11.13/Dockerfile)
 
+## Credits to original project
+
 This image is published in the [Docker Hub](https://hub.docker.com/r/lagun4ik/nginx-pagespeed/) as `lagun4ik/nginx-pagespeed`
 
 ## Configuration
 
 The config is set using environments
 ```docker
-#default values
+# default values
 PAGESPEED_ENABLE=on # || off
 ```
 
@@ -28,13 +32,14 @@ version: '2'
 
 services:
   nginx:
-    image: lagun4ik/nginx-pagespeed
+    image: crunchgeek/nginx-pagespeed
     restart: always
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+    hostname: ${HOST_NAME}-nginx
+    container_name: nginx
     volumes:
-      - ./sites-enabled:/etc/nginx/sites-enabled
-      - ./www/:/var/www/
-      - ./cache/ngx_pagespeed:/var/cache/ngx_pagespeed
+      - ${APPLICATIONS}:/applications:ro
+      - ./HEALTHCHECK:/var/www/HEALTHCHECK:ro
+
 ```

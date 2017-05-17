@@ -2,11 +2,12 @@ version: '2'
 
 services:
   nginx:
-    image: lagun4ik/nginx-pagespeed
+    image: crunchgeek/nginx-pagespeed
     restart: always
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+    hostname: ${HOST_NAME}-nginx
+    container_name: nginx
     volumes:
-      - ./sites-enabled:/etc/nginx/sites-enabled
-      - ./cache/ngx_pagespeed:/var/cache/ngx_pagespeed
+      - ${APPLICATIONS}:/applications:ro
+      - ./HEALTHCHECK:/var/www/HEALTHCHECK:ro

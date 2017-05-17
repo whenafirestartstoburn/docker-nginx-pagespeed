@@ -1,12 +1,21 @@
 FROM alpine:3.4
 
-MAINTAINER ivan@lagunovsky.com
+MAINTAINER nerd305@gmail.com
 
-ENV NGINX_VERSION=1.13.0 \
-     PAGESPEED_VERSION=1.11.33.4 \
-     LIBPNG_VERSION=1.2.56 \
-     MAKE_J=4 \
-     PAGESPEED_ENABLE=on
+ARG NGINX_VERSION=1.13.0
+ARG PAGESPEED_VERSION=1.11.33.4
+ARG LIBPNG_VERSION=1.2.56
+ARG MAKE_J=4
+ARG PAGESPEED_ENABLE=on
+
+# RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
+
+
+ENV NGINX_VERSION=${NGINX_VERSION} \
+    PAGESPEED_VERSION=${PAGESPEED_VERSION} \
+    LIBPNG_VERSION=${LIBPNG_VERSION} \
+    MAKE_J=${MAKE_J} \
+    PAGESPEED_ENABLE=${PAGESPEED_ENABLE}
 
 RUN apk upgrade --no-cache --update && \
     apk add --no-cache --update \
@@ -30,21 +39,24 @@ RUN set -x && \
         build-base \
         curl \
         icu-dev \
+        geoip-dev \
         libjpeg-turbo-dev \
         linux-headers \
         gperf \
         openssl-dev \
         pcre-dev \
         python \
-        zlib-dev && \
-    # Build libpng
-    cd /tmp && \
+        zlib-dev
+
+# Build libpng
+RUN cd /tmp && \
     curl -L http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.gz | tar -zx && \
     cd /tmp/libpng-${LIBPNG_VERSION} && \
     ./configure --build=$CBUILD --host=$CHOST --prefix=/usr --enable-shared --with-libpng-compat && \
-    make -j${MAKE_J} install V=0 && \
-    # Build PageSpeed
-    cd /tmp && \
+    make -j${MAKE_J} install V=0 
+
+# Build PageSpeed
+RUN cd /tmp && \
     curl -L https://dl.google.com/dl/linux/mod-pagespeed/tar/beta/mod-pagespeed-beta-${PAGESPEED_VERSION}-r0.tar.bz2 | tar -jx && \
     curl -L https://github.com/pagespeed/ngx_pagespeed/archive/v${PAGESPEED_VERSION}-beta.tar.gz | tar -zx && \
     cd /tmp/modpagespeed-${PAGESPEED_VERSION} && \
@@ -68,14 +80,16 @@ RUN set -x && \
     cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/third_party /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/include/ && \
     cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/tools /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/include/ && \
     cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/url /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/include/ && \
-    cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/pagespeed/automatic/pagespeed_automatic.a /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/lib/Release/linux/x64 && \
-    # Build Nginx with support for PageSpeed
-    cd /tmp && \
+    cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/pagespeed/automatic/pagespeed_automatic.a /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/lib/Release/linux/x64
+
+# Build Nginx with support for PageSpeed
+RUN cd /tmp && \
     curl -L http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar -zx && \
     cd /tmp/nginx-${NGINX_VERSION} && \
-    LD_LIBRARY_PATH=/tmp/modpagespeed-${PAGESPEED_VERSION}/usr/lib ./configure \
+    LD_LIBRARY_PATH=/tmp/modpagespeed-${PAGESPEED_VERSION}/usr/lib:/usr/lib ./configure \
         --sbin-path=/usr/sbin \
         --modules-path=/usr/lib/nginx \
+        --with-http_stub_status_module \
         --with-http_ssl_module \
         --with-http_gzip_static_module \
         --with-file-aio \
@@ -83,7 +97,6 @@ RUN set -x && \
         --with-http_realip_module \
         --without-http_autoindex_module \
         --without-http_browser_module \
-        --without-http_geo_module \
         --without-http_memcached_module \
         --without-http_userid_module \
         --without-mail_pop3_module \
@@ -99,6 +112,7 @@ RUN set -x && \
         --with-threads \
         --with-stream \
         --with-stream_ssl_module \
+        --with-http_geoip_module \
         --prefix=/etc/nginx \
         --conf-path=/etc/nginx/nginx.conf \
         --http-log-path=/var/log/nginx/access.log \
@@ -107,9 +121,10 @@ RUN set -x && \
         --add-module=/tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta \
         --with-cc-opt="-fPIC -I /usr/include/apr-1" \
         --with-ld-opt="-luuid -lapr-1 -laprutil-1 -licudata -licuuc -L/tmp/modpagespeed-${PAGESPEED_VERSION}/usr/lib -lpng12 -lturbojpeg -ljpeg" && \
-    make -j${MAKE_J} install --silent && \
-    # Clean-up
-    cd && \
+    make -j${MAKE_J} install --silent
+
+# Clean-up
+RUN cd && \
     apk del .build-deps && \
     rm -rf /tmp/* && \
     # Forward request and error logs to docker log collector
@@ -119,14 +134,24 @@ RUN set -x && \
     mkdir -p /var/cache/ngx_pagespeed && \
     chmod -R o+wr /var/cache/ngx_pagespeed
 
+# Download latest GeoIP databases
+RUN apk add geoip-dev
+
+RUN mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP/ && \
+    wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && \
+    wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && \
+    gzip -d *
+
+# Inject Nginx configuration files
 COPY config/conf.d /etc/nginx/conf.d
+COPY config/include /etc/nginx/include
 COPY config/nginx.conf /etc/nginx/nginx.conf
+COPY config/fastcgi_params /etc/nginx/fastcgi_params
 COPY docker-entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-VOLUME ["/var/cache/ngx_pagespeed"]
+EXPOSE 80
 
-EXPOSE 80 443
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
