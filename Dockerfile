@@ -38,6 +38,7 @@ RUN set -x && \
         apr-util-dev \
         build-base \
         curl \
+        git \
         icu-dev \
         geoip-dev \
         libjpeg-turbo-dev \
@@ -82,6 +83,10 @@ RUN cd /tmp && \
     cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/url /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/include/ && \
     cp -r /tmp/modpagespeed-${PAGESPEED_VERSION}/src/pagespeed/automatic/pagespeed_automatic.a /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta/psol/lib/Release/linux/x64
 
+# Build in additional Nginx modules
+RUN cd /tmp && \
+    git clone git://github.com/yaoweibin/ngx_http_substitutions_filter_module.git
+
 # Build Nginx with support for PageSpeed
 RUN cd /tmp && \
     curl -L http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar -zx && \
@@ -119,6 +124,7 @@ RUN cd /tmp && \
         --error-log-path=/var/log/nginx/error.log \
         --pid-path=/var/run/nginx.pid \
         --add-module=/tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta \
+        --add-module=/tmp/ngx_http_substitutions_filter_module \
         --with-cc-opt="-fPIC -I /usr/include/apr-1" \
         --with-ld-opt="-luuid -lapr-1 -laprutil-1 -licudata -licuuc -L/tmp/modpagespeed-${PAGESPEED_VERSION}/usr/lib -lpng12 -lturbojpeg -ljpeg" && \
     make -j${MAKE_J} install --silent
@@ -135,7 +141,7 @@ RUN cd && \
     chmod -R o+wr /var/cache/ngx_pagespeed
 
 # Download latest GeoIP databases
-RUN apk add geoip-dev
+RUN apk add geoip-dev curl jq
 
 RUN mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP/ && \
     wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && \
@@ -143,12 +149,16 @@ RUN mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP/ && \
     gzip -d *
 
 # Inject Nginx configuration files
+COPY .env /
 COPY config/conf.d /etc/nginx/conf.d
 COPY config/include /etc/nginx/include
+COPY config/ErrorPages /etc/nginx/ErrorPages
 COPY config/nginx.conf /etc/nginx/nginx.conf
 COPY config/fastcgi_params /etc/nginx/fastcgi_params
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker-fetchsites.sh /usr/local/bin
+COPY docker-entrypoint.sh /usr/local/bin
 
+RUN chmod +x /usr/local/bin/docker-fetchsites.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80

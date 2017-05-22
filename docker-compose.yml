@@ -2,11 +2,15 @@ version: '2'
 
 services:
   nginx:
-    image: crunchgeek/nginx-pagespeed
+    build: .
     restart: always
     ports:
       - "80:80"
-    hostname: ${HOST_NAME}-nginx
+    hostname: ${HOSTNAME}-nginx
+    extra_hosts:
+      - "php70:127.0.0.1"
+      - "php56:127.0.0.1"
+      - "php53:127.0.0.1"
     container_name: nginx
     volumes:
       - ${APPLICATIONS}:/applications:ro

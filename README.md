@@ -3,7 +3,21 @@
 This docker image based on [Alpine](https://hub.docker.com/_/alpine/). 
 Alpine is based on [Alpine Linux](http://www.alpinelinux.org), lightweight Linux distribution based on [BusyBox](https://hub.docker.com/_/busybox/). 
 
-The goal is to create a small docker Nginx image size, that is purposed to run a directory of vhosts sites with different PHP engine versions.
+The goal is to create a small docker Nginx image size, that is purposed to run a cluster of vhosts sites with different PHP engine versions.
+
+I personally use it with distributed, orchestrated hosting deployments, therefore environment file contains variables for orchestrator API endpoint.
+
+JSON payload is beging pulled from specified remote API endpoint in format of:
+
+```json
+{ 
+    'domain1.com': 'nginx configuration template',
+    'domain2.com': 'nginx configuration template',
+}
+```
+
+to be parsed into individual vhosts configuration files injected into: 
+/etc/nginx/config.d/ folder on container boot.
 
 ## PageSpeed
 The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze and optimize your site following web best practices.
