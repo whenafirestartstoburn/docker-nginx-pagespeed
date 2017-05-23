@@ -8,9 +8,6 @@ ARG LIBPNG_VERSION=1.2.56
 ARG MAKE_J=4
 ARG PAGESPEED_ENABLE=on
 
-# RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
-
-
 ENV NGINX_VERSION=${NGINX_VERSION} \
     PAGESPEED_VERSION=${PAGESPEED_VERSION} \
     LIBPNG_VERSION=${LIBPNG_VERSION} \
@@ -149,7 +146,6 @@ RUN mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP/ && \
     gzip -d *
 
 # Inject Nginx configuration files
-COPY .env /
 COPY config/conf.d /etc/nginx/conf.d
 COPY config/include /etc/nginx/include
 COPY config/ErrorPages /etc/nginx/ErrorPages

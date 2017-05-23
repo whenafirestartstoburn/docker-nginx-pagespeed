@@ -3,3 +3,9 @@ PAGESPEED_VERSION=1.11.33.4
 LIBPNG_VERSION=1.2.56
 MAKE_J=4
 PAGESPEED_ENABLE=on
+
+
+ENDPOINT=https://orchestrator.domain.com
+FILESYSTEM=nfs
+HOSTNAME=nginx
+APPLICATIONS=/applications/
