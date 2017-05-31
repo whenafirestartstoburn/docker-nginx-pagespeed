@@ -82,6 +82,7 @@ RUN cd /tmp && \
 
 # Build in additional Nginx modules
 RUN cd /tmp && \
+    git clone https://github.com/openresty/headers-more-nginx-module.git && \
     git clone git://github.com/yaoweibin/ngx_http_substitutions_filter_module.git
 
 # Build Nginx with support for PageSpeed
@@ -121,6 +122,7 @@ RUN cd /tmp && \
         --error-log-path=/var/log/nginx/error.log \
         --pid-path=/var/run/nginx.pid \
         --add-module=/tmp/ngx_pagespeed-${PAGESPEED_VERSION}-beta \
+        --add-module=/tmp/headers-more-nginx-module \
         --add-module=/tmp/ngx_http_substitutions_filter_module \
         --with-cc-opt="-fPIC -I /usr/include/apr-1" \
         --with-ld-opt="-luuid -lapr-1 -laprutil-1 -licudata -licuuc -L/tmp/modpagespeed-${PAGESPEED_VERSION}/usr/lib -lpng12 -lturbojpeg -ljpeg" && \
@@ -151,13 +153,14 @@ COPY config/include /etc/nginx/include
 COPY config/ErrorPages /etc/nginx/ErrorPages
 COPY config/nginx.conf /etc/nginx/nginx.conf
 COPY config/fastcgi_params /etc/nginx/fastcgi_params
-COPY docker-fetchsites.sh /usr/local/bin
-COPY docker-entrypoint.sh /usr/local/bin
+COPY scripts/* /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/docker-fetchsites.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/* && \
+    mkdir -p /var/www
 
 EXPOSE 80
+
+HEALTHCHECK --interval=5s --timeout=5s CMD curl -I http://127.0.0.1/ping || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
