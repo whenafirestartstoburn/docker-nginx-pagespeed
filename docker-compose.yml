@@ -1,20 +1,9 @@
-version: '3'
+version: "3"
 
 services:
   nginx:
     build: .
-    restart: always
     ports:
       - "80:80"
-    hostname: ${HOSTNAME}-nginx
-    extra_hosts:
-      - "php70:127.0.0.1"
-      - "php56:127.0.0.1"
-      - "php53:127.0.0.1"
-    container_name: nginx
-    environment:
-      - ENDPOINT=${ENDPOINT}
-      - FILESYSTEM=${FILESYSTEM}
-    volumes:
-      - ${APPLICATIONS}:/applications:ro
-      - ./HEALTHCHECK:/var/www/HEALTHCHECK:ro
+    container_name: nginx-pagespeed
+    env_file: .env

@@ -1,11 +1,35 @@
-NGINX_VERSION=1.13.0
-PAGESPEED_VERSION=1.11.33.4
-LIBPNG_VERSION=1.2.56
 MAKE_J=4
-PAGESPEED_ENABLE=on
+NGINX_VERSION=1.13.3
+PAGESPEED_VERSION=1.12.34.2
+LIBPNG_VERSION=1.6.29
 
+### add path to include extra configuration files : (default: off)
+NGINX_INCLUDE_PATH=/app/config/nginx/*.conf
 
-ENDPOINT=https://orchestrator.domain.com
-FILESYSTEM=nfs
-HOSTNAME=nginx
-APPLICATIONS=/applications/
+### Include default server definition with health check: on|off (default: on)
+### Nginx will not be able to start without default server configured with /healthcheck
+NGINX_DEFAULT_SERVER=on
+
+### Include extra common fastcgi PHP GeoIP variables: on|off (default: on)
+NGINX_FASTCGI_GEOIP=on
+
+### Google PageSpeed algorithm: on|off (default: off)
+NGINX_PAGESPEED=on
+
+### PageSpeed image optimization: on|off (default: off)
+NGINX_PAGESPEED_IMG=on
+
+### PageSpeed javascripts optimization: on|off (default: off)
+NGINX_PAGESPEED_JS=on
+
+### PageSpeed style sheets optimization: on|off (default: off)
+NGINX_PAGESPEED_CSS=on
+
+### PageSpeed cache storage: files|redis|memcached (default: files)
+NGINX_PAGESPEED_STORAGE=files
+
+### PageSpeed Redis cache storage address and port: redis.host:port (default: none)
+NGINX_PAGESPEED_REDIS=redis.host:6379
+
+### PageSpeed Memcached cache storage address and port: memcached.host:port (default: none)
+NGINX_PAGESPEED_MEMCACHED=memcached.host:11211

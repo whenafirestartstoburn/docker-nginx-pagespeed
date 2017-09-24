@@ -1,6 +1,8 @@
 #!/bin/bash
 
-docker-fetchsites.sh || exit 1
+echo "starting nginx web server..."
+
+/usr/local/bin/initialize.sh || exit 1
 
 set -e
 

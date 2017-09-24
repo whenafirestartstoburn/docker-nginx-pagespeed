@@ -1,59 +1,80 @@
-# Lightweight Docker Image include Nginx with PageSpeed and GEO IP module
+# Nginx Docker Image with PageSpeed and GEO IP
  
-This docker image based on [Alpine](https://hub.docker.com/_/alpine/). 
-Alpine is based on [Alpine Linux](http://www.alpinelinux.org), lightweight Linux distribution based on [BusyBox](https://hub.docker.com/_/busybox/). 
-
-The goal is to create a small docker Nginx image size, that is purposed to run a cluster of vhosts sites with different PHP engine versions.
-
-I personally use it with distributed, orchestrated hosting deployments, therefore environment file contains variables for orchestrator API endpoint.
-
-JSON payload is beging pulled from specified remote API endpoint in format of:
-
-```json
-{ 
-    'domain1.com': 'nginx configuration template',
-    'domain2.com': 'nginx configuration template',
-}
-```
-
-to be parsed into individual vhosts configuration files injected into: 
-/etc/nginx/config.d/ folder on container boot.
+This docker image based on Debian Stretch linux distribution. 
+Project goals is a easy to build/compile docker image of latest Nginx web server with Google PageSpeed and Geo IP modules.
 
 ## PageSpeed
 The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze and optimize your site following web best practices.
 
-## Supported tags and `Dockerfile` links
+## VTS
+The [VTS](https://github.com/vozlt/nginx-module-vts) Nginx virtual host traffic status module.
 
- - [`1.13.0`, `latest` (Dockerfile)](https://github.com/lagun4ik/docker-nginx-pagespeed/blob/master/Dockerfile)
- - [`1.11.13` (Dockerfile)](https://github.com/lagun4ik/docker-nginx-pagespeed/blob/1.11.13/Dockerfile)
+## GeoIP
+The [GeoIP] databases (https://www.maxmind.com/en/geoip-demo)
 
-## Credits to original project
+## More Headers
+The [more_set_headers] (https://github.com/openresty/headers-more-nginx-module)allows to set more headers useful in multi cluster environments.
 
-This image is published in the [Docker Hub](https://hub.docker.com/r/lagun4ik/nginx-pagespeed/) as `lagun4ik/nginx-pagespeed`
+## Substitutions Filter
+The [subs_filter] (https://github.com/yaoweibin/ngx_http_substitutions_filter_module) allows nginx to filter which can do both regular expression and fixed string substitutions on response bodies.
 
-## Configuration
+## Json access log
+Container will produce web server access log through docker /stdout in json format for easy parsing via 3rd party containers like Fluentd.
 
-The config is set using environments
-```docker
-# default values
-PAGESPEED_ENABLE=on # || off
-```
+### Main features
 
-## Example compose file
+Include environment variables to turn ON | OFF Page Speed optimization features for:
 
-```yaml
-version: '2'
+- images
+- javascripts
+- style sheets
+- cache engine for cluster environments: files, memcached or redis
 
-services:
-  nginx:
-    image: crunchgeek/nginx-pagespeed
-    restart: always
-    ports:
-      - "80:80"
-    hostname: ${HOST_NAME}-nginx
-    container_name: nginx
-    volumes:
-      - ${APPLICATIONS}:/applications:ro
-      - ./HEALTHCHECK:/var/www/HEALTHCHECK:ro
+as well as: 
 
+- vhosts stats page
+- default host with health check
+
+Nginx is configured by default for high performance, multi cluster production environment, but can be easily adjusted with environment variables.
+
+### Configuration
+
+Example docker-compose.yml uses default environment variables:
+
+```env
+MAKE_J=4
+NGINX_VERSION=1.13.3
+PAGESPEED_VERSION=1.12.34.2
+LIBPNG_VERSION=1.6.29
+
+### add path to include extra configuration files : (default: off)
+NGINX_INCLUDE_PATH=/app/config/nginx/*.conf
+
+### Include default server definition with health check: on|off (default: on)
+### Nginx will not be able to start without default server configured with /healthcheck
+NGINX_DEFAULT_SERVER=on
+
+### Include extra common fastcgi PHP GeoIP variables: on|off (default: on)
+NGINX_FASTCGI_GEOIP=on
+
+### Google PageSpeed algorithm: on|off (default: off)
+NGINX_PAGESPEED=on
+
+### PageSpeed image optimization: on|off (default: off)
+NGINX_PAGESPEED_IMG=on
+
+### PageSpeed javascripts optimization: on|off (default: off)
+NGINX_PAGESPEED_JS=on
+
+### PageSpeed style sheets optimization: on|off (default: off)
+NGINX_PAGESPEED_CSS=on
+
+### PageSpeed cache storage: files|redis|memcached (default: files)
+NGINX_PAGESPEED_STORAGE=files
+
+### PageSpeed Redis cache storage address and port: redis.host:port (default: none)
+NGINX_PAGESPEED_REDIS=redis.host:6379
+
+### PageSpeed Memcached cache storage address and port: memcached.host:port (default: none)
+NGINX_PAGESPEED_MEMCACHED=memcached.host:11211
 ```
