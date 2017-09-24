@@ -55,7 +55,6 @@ LIBPNG_VERSION=1.6.29
 NGINX_INCLUDE_PATH=/app/config/nginx/*.conf
 
 ### Include default server definition with health check: on|off (default: on)
-### Nginx will not be able to start without default server configured with /healthcheck
 NGINX_DEFAULT_SERVER=on
 
 ### Include extra common fastcgi PHP GeoIP variables: on|off (default: on)
