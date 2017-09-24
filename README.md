@@ -4,10 +4,14 @@ This docker image based on Debian Stretch linux distribution.
 Project goals is a easy to build/compile docker image of latest Nginx web server with Google PageSpeed and Geo IP modules.
 
 ## PageSpeed
-The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze and optimize your site following web best practices.
+The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze and optimize your site following web best practices. If turned ON it exposes a PageSpeed admin status page at: 
+
+- ```http://localhost:8080/pagespeed_admin/```
 
 ## VTS
-The [VTS](https://github.com/vozlt/nginx-module-vts) Nginx virtual host traffic status module.
+The [VTS](https://github.com/vozlt/nginx-module-vts) Nginx virtual host traffic status module. It exposes a status page at:
+
+- ```http://localhost:8080/status/```
 
 ## GeoIP
 The [GeoIP] databases (https://www.maxmind.com/en/geoip-demo)
