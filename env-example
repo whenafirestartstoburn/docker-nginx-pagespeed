@@ -3,7 +3,7 @@ NGINX_VERSION=1.13.3
 PAGESPEED_VERSION=1.12.34.2
 LIBPNG_VERSION=1.6.29
 
-### add path to include extra configuration files : (default: off)
+### add path to include extra configuration files: (default: off)
 NGINX_INCLUDE_PATH=/app/config/nginx/*.conf
 
 ### Include default server definition with health check: on|off (default: on)
