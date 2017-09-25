@@ -1,7 +1,7 @@
-# Nginx Docker Image with PageSpeed and GEO IP
+# Docker Nginx + PageSpeed + GEO IP
  
 This docker image based on Debian Stretch linux distribution. 
-Project goals is a easy to build/compile docker image of latest Nginx web server with Google PageSpeed and Geo IP modules.
+Project goal is an easy to build docker image of latest Nginx web server with Google PageSpeed and Geo IP modules.
 
 ## PageSpeed
 The [PageSpeed](https://developers.google.com/speed/pagespeed/) tools analyze and optimize your site following web best practices. If turned ON it exposes a PageSpeed admin status page at: 
@@ -14,13 +14,13 @@ The [VTS](https://github.com/vozlt/nginx-module-vts) Nginx virtual host traffic 
 - ```http://localhost:8080/status/```
 
 ## GeoIP
-The [GeoIP] databases (https://www.maxmind.com/en/geoip-demo)
+The [GeoIP](https://www.maxmind.com/en/geoip-demo) databases to help decode remote IP address into geographical location.
 
 ## More Headers
-The [more_set_headers] (https://github.com/openresty/headers-more-nginx-module)allows to set more headers useful in multi cluster environments.
+The [more_set_headers](https://github.com/openresty/headers-more-nginx-module)allows to set more headers useful in multi cluster environments.
 
 ## Substitutions Filter
-The [subs_filter] (https://github.com/yaoweibin/ngx_http_substitutions_filter_module) allows nginx to filter which can do both regular expression and fixed string substitutions on response bodies.
+The [subs_filter](https://github.com/yaoweibin/ngx_http_substitutions_filter_module) allows nginx to filter which can do both regular expression and fixed string substitutions on response bodies.
 
 ## Json access log
 Container will produce web server access log through docker /stdout in json format for easy parsing via 3rd party containers like Fluentd.
