@@ -3,8 +3,8 @@ FROM debian:stretch
 MAINTAINER nerd305@gmail.com
 
 ARG MAKE_J=4
-ARG NGINX_VERSION=1.13.3
-ARG PAGESPEED_VERSION=1.12.34.2
+ARG NGINX_VERSION=1.13.8
+ARG PAGESPEED_VERSION=1.13.35.2
 ARG LIBPNG_VERSION=1.6.29
 
 ENV MAKE_J=${MAKE_J} \
@@ -58,7 +58,7 @@ RUN cd /tmp && \
     curl -O -L https://github.com/pagespeed/ngx_pagespeed/archive/v${PAGESPEED_VERSION}-stable.zip && \
     unzip v${PAGESPEED_VERSION}-stable.zip
 
-RUN cd /tmp/ngx_pagespeed-${PAGESPEED_VERSION}-stable/ && \
+RUN cd /tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}-stable/ && \
     psol_url=https://dl.google.com/dl/page-speed/psol/${PAGESPEED_VERSION}.tar.gz && \
     [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
     echo "URL: ${psol_url}" && \
@@ -74,7 +74,7 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     curl -L http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar -zx && \
     cd /tmp/nginx-${NGINX_VERSION} && \
-    LD_LIBRARY_PATH=/tmp/modpagespeed-${PAGESPEED_VERSION}/usr/lib:/usr/lib ./configure \
+    LD_LIBRARY_PATH=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}/usr/lib:/usr/lib ./configure \
         --sbin-path=/usr/sbin \
         --modules-path=/usr/lib/nginx \
         --with-http_ssl_module \
@@ -109,7 +109,7 @@ RUN cd /tmp && \
         --add-module=/tmp/nginx-module-vts \
         --add-module=/tmp/headers-more-nginx-module \
         --add-module=/tmp/ngx_http_substitutions_filter_module \
-        --add-module=/tmp/ngx_pagespeed-${PAGESPEED_VERSION}-stable && \
+        --add-module=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}-stable && \
     make install --silent
 
 
@@ -129,11 +129,11 @@ RUN mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP/ && \
     gzip -d *
 
 # Inject Nginx configuration files
-COPY ./config/conf.d         /etc/nginx/conf.d
-COPY ./config/include        /etc/nginx/include
-COPY ./config/nginx.conf     /etc/nginx/nginx.conf
-COPY ./config/fastcgi_params /etc/nginx/fastcgi_params
-COPY ./scripts               /usr/local/bin/
+COPY ./config/conf.d              /etc/nginx/conf.d
+COPY ./config/include             /etc/nginx/include
+COPY ./config/nginx.conf          /etc/nginx/nginx.conf
+COPY ./config/fastcgi_params.orig /etc/nginx/fastcgi_params.orig
+COPY ./scripts                    /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*
 

@@ -17,7 +17,7 @@ The [VTS](https://github.com/vozlt/nginx-module-vts) Nginx virtual host traffic 
 The [GeoIP](https://www.maxmind.com/en/geoip-demo) databases to help decode remote IP address into geographical location.
 
 ## More Headers
-The [more_set_headers](https://github.com/openresty/headers-more-nginx-module)allows to set more headers useful in multi cluster environments.
+The [more_set_headers] (https://github.com/openresty/headers-more-nginx-module)allows to set more HTTP response headers - useful in multi cluster environments.
 
 ## Substitutions Filter
 The [subs_filter](https://github.com/yaoweibin/ngx_http_substitutions_filter_module) allows nginx to filter which can do both regular expression and fixed string substitutions on response bodies.
