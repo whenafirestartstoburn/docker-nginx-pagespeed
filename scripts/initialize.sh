@@ -10,6 +10,8 @@ else
 		sed -i "/pagespeed off;/cpagespeed ${NGINX_PAGESPEED};" /etc/nginx/include/pagespeed.conf
 	else
 		echo "CONFIG: pagespeed: OFF"		
+		sed -i "/pagespeed on;/cpagespeed ${NGINX_PAGESPEED};" /etc/nginx/conf.d/pagespeed.conf
+		sed -i "/pagespeed on;/cpagespeed ${NGINX_PAGESPEED};" /etc/nginx/include/pagespeed.conf
 	fi
 fi
 
