@@ -112,7 +112,7 @@ RUN cd /tmp && \
         --add-module=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}-stable && \
     make install --silent
 
-RUN RUN echo "deb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list && \
+RUN echo "deb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list && \
     apt-get update -y && apt-get -t jessie-backports -y install certbot && \
     openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
