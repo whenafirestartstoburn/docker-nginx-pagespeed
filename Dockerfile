@@ -1,9 +1,9 @@
-FROM debian:stretch
+FROM debian:stretch-slim
 
 MAINTAINER nerd305@gmail.com
 
 ARG MAKE_J=4
-ARG NGINX_VERSION=1.13.11
+ARG NGINX_VERSION=1.14.0
 ARG PAGESPEED_VERSION=1.13.35.2
 ARG LIBPNG_VERSION=1.6.29
 
@@ -17,7 +17,7 @@ RUN apt-get update -y && \
 
 RUN apt-get install -y \
         apt-utils \
-        jq git nano \
+        git nano \
         g++ \
         gcc \
         curl \
@@ -112,11 +112,8 @@ RUN cd /tmp && \
         --add-module=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}-stable && \
     make install --silent
 
-RUN echo "deb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list && \
-    apt-get update -y && apt-get -t jessie-backports -y install certbot && \
-    openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
-
 # Clean-up
+RUN apt-get remove -y git
 RUN rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* && \
     # Forward request and error logs to docker log collector
     ln -sf /dev/stdout /var/log/nginx/access.log && \
