@@ -27,5 +27,5 @@ images: ['gcr.io/$PROJECT_ID/$_IMAGE:$BRANCH_NAME']
 
 # arguments
 substitutions:
-    _IMAGE:        docker_image_name   # docker image name
-    _WEBHOOK_URL:  http://webhook_url  # Slack Webhook URL
+    _IMAGE:        docker_image_name # docker image name
+    _WEBHOOK_URL:  https://hooks.slack.com/services/ # Slack Webhook URL
