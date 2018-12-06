@@ -6,7 +6,11 @@ steps:
 
 # pull docker image for cache
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['pull', 'gcr.io/$PROJECT_ID/$_IMAGE:$BRANCH_NAME']
+  entrypoint: 'bash'
+  args: 
+  - '-c'
+  - | 
+    docker pull gcr.io/$PROJECT_ID/$_IMAGE:$BRANCH_NAME || exit 0
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
