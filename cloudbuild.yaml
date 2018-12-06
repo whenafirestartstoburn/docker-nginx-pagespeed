@@ -8,5 +8,4 @@ steps:
             '--cache-from', 'gcr.io/$PROJECT_ID/$_IMAGE:$BRANCH_NAME',
             '.'
         ]
-  dir: '$BRANCH_NAME'
 images: ['gcr.io/$PROJECT_ID/$_IMAGE:$BRANCH_NAME']
