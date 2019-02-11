@@ -1,19 +1,17 @@
 FROM debian:stretch-slim
 
-MAINTAINER nerd305@gmail.com
-
 ARG MAKE_J=4
 ARG NGINX_VERSION=1.14.0
 ARG PAGESPEED_VERSION=1.13.35.2
 ARG LIBPNG_VERSION=1.6.29
 
 ENV MAKE_J=${MAKE_J} \
-    NGINX_VERSION=${NGINX_VERSION} \
-    LIBPNG_VERSION=${LIBPNG_VERSION} \
-    PAGESPEED_VERSION=${PAGESPEED_VERSION}
+        NGINX_VERSION=${NGINX_VERSION} \
+        LIBPNG_VERSION=${LIBPNG_VERSION} \
+        PAGESPEED_VERSION=${PAGESPEED_VERSION}
 
 RUN apt-get update -y && \
-    apt-get upgrade -y
+        apt-get upgrade -y
 
 RUN apt-get install -y \
         apt-utils \
@@ -40,7 +38,6 @@ RUN apt-get install -y \
         apache2-dev \
         libpcre3 \
         libpcre3-dev \
-        libgeoip-dev \
         libpng-dev \
         libaprutil1-dev \
         linux-headers-amd64 \
@@ -49,32 +46,32 @@ RUN apt-get install -y \
 
 # Build libpng
 RUN cd /tmp && \
-    curl -L http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.gz | tar -zx && \
-    cd /tmp/libpng-${LIBPNG_VERSION} && \
-    ./configure --build=$CBUILD --host=$CHOST --prefix=/usr --enable-shared --with-libpng-compat && \
-    make -j${MAKE_J} install V=0 
+        curl -L http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.gz | tar -zx && \
+        cd /tmp/libpng-${LIBPNG_VERSION} && \
+        ./configure --build=$CBUILD --host=$CHOST --prefix=/usr --enable-shared --with-libpng-compat && \
+        make -j${MAKE_J} install V=0
 
 RUN cd /tmp && \
-    curl -O -L https://github.com/pagespeed/ngx_pagespeed/archive/v${PAGESPEED_VERSION}-stable.zip && \
-    unzip v${PAGESPEED_VERSION}-stable.zip
+        curl -O -L https://github.com/pagespeed/ngx_pagespeed/archive/v${PAGESPEED_VERSION}-stable.zip && \
+        unzip v${PAGESPEED_VERSION}-stable.zip
 
 RUN cd /tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}-stable/ && \
-    psol_url=https://dl.google.com/dl/page-speed/psol/${PAGESPEED_VERSION}.tar.gz && \
-    [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
-    echo "URL: ${psol_url}" && \
-    curl -L ${psol_url} | tar -xz
+        psol_url=https://dl.google.com/dl/page-speed/psol/${PAGESPEED_VERSION}.tar.gz && \
+        [ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) && \
+        echo "URL: ${psol_url}" && \
+        curl -L ${psol_url} | tar -xz
 
 # Build in additional Nginx modules
 RUN cd /tmp && \
-    git clone git://github.com/vozlt/nginx-module-vts.git && \
-    git clone https://github.com/openresty/headers-more-nginx-module.git && \
-    git clone git://github.com/yaoweibin/ngx_http_substitutions_filter_module.git
+        git clone git://github.com/vozlt/nginx-module-vts.git && \
+        git clone https://github.com/openresty/headers-more-nginx-module.git && \
+        git clone git://github.com/yaoweibin/ngx_http_substitutions_filter_module.git
 
 # Build Nginx with support for PageSpeed
 RUN cd /tmp && \
-    curl -L http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar -zx && \
-    cd /tmp/nginx-${NGINX_VERSION} && \
-    LD_LIBRARY_PATH=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}/usr/lib:/usr/lib ./configure \
+        curl -L http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar -zx && \
+        cd /tmp/nginx-${NGINX_VERSION} && \
+        LD_LIBRARY_PATH=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}/usr/lib:/usr/lib ./configure \
         --sbin-path=/usr/sbin \
         --modules-path=/usr/lib/nginx \
         --with-http_ssl_module \
@@ -89,7 +86,6 @@ RUN cd /tmp && \
         --with-threads \
         --with-stream \
         --with-stream_ssl_module \
-        --with-http_geoip_module \
         --without-http_autoindex_module \
         --without-http_browser_module \
         --without-http_memcached_module \
@@ -110,23 +106,17 @@ RUN cd /tmp && \
         --add-module=/tmp/headers-more-nginx-module \
         --add-module=/tmp/ngx_http_substitutions_filter_module \
         --add-module=/tmp/incubator-pagespeed-ngx-${PAGESPEED_VERSION}-stable && \
-    make install --silent
+        make install --silent
 
 # Clean-up
 RUN apt-get remove -y git
 RUN rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* && \
-    # Forward request and error logs to docker log collector
-    ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log && \
-    # Make PageSpeed cache writable
-    mkdir -p /var/cache/ngx_pagespeed && \
-    chmod -R o+wr /var/cache/ngx_pagespeed
-
-RUN mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP/ && \
-    rm -f GeoIP.dat GeoIPv6.dat && \
-    curl -L -O http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && \
-    curl -L -O http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && \
-    gzip -d *
+        # Forward request and error logs to docker log collector
+        ln -sf /dev/stdout /var/log/nginx/access.log && \
+        ln -sf /dev/stderr /var/log/nginx/error.log && \
+        # Make PageSpeed cache writable
+        mkdir -p /var/cache/ngx_pagespeed && \
+        chmod -R o+wr /var/cache/ngx_pagespeed
 
 # Inject Nginx configuration files
 COPY ./config/conf.d              /etc/nginx/conf.d
