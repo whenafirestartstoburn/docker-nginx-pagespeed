@@ -1,7 +1,7 @@
 FROM debian:stretch-slim
 
 ARG MAKE_J=4
-ARG NGINX_VERSION=1.17.3
+ARG NGINX_VERSION=1.19.0
 ARG PAGESPEED_VERSION=1.13.35.2
 ARG LIBPNG_VERSION=1.6.37
 
@@ -137,10 +137,16 @@ RUN rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* && \
 	mkdir -p /var/cache/ngx_pagespeed && \
 	chmod -R o+wr /var/cache/ngx_pagespeed
 
-RUN mkdir -p /usr/share/GeoIP2 && cd /usr/share/GeoIP2 && \
-	curl -L -O https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz && \
-	curl -L -O https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz && \
-	gzip -d *
+### MaxMind not longer supports database downloads
+### so upload them yourself into /usr/share/GeoIP2 folder
+RUN mkdir -p /usr/share/GeoIP2
+ADD ./geoip2/* /usr/share/GeoIP2/
+
+### MaxMind Deprecated GeoIP2 databases download URLs
+# RUN cd /usr/share/GeoIP2 && \
+# 	curl -L -O https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz && \
+# 	curl -L -O https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz && \
+# 	gzip -d *
 
 # Inject Nginx configuration files
 COPY ./config/conf.d              /etc/nginx/conf.d

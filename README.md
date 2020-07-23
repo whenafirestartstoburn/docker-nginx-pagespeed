@@ -19,6 +19,8 @@ The [VTS](https://github.com/vozlt/nginx-module-vts) Nginx virtual host traffic 
 
 The [GeoIP](https://www.maxmind.com/en/geoip-demo) databases to help decode remote IP address into geographical location.
 
+**Important**: Due to data privacy regulations, [MaxMind made changes](https://dev.maxmind.com/geoip/geoip2/geolite2/) to how you can access free GeoLite2 databases. Since database files cannot be accessed by a public URL, you will have to download them manually.
+
 ## More Headers
 
 The [more_set_headers](https://github.com/openresty/headers-more-nginx-module)allows to set more HTTP response headers - useful in multi cluster environments.
@@ -65,8 +67,9 @@ NGINX_INCLUDE_PATH=/app/config/nginx/*.conf
 ### Include default server definition with health check: on|off (default: on)
 NGINX_DEFAULT_SERVER=on
 
-### Include extra common fastcgi PHP GeoIP variables: on|off (default: on)
-NGINX_FASTCGI_GEOIP=on
+### Configure GeoIP support and include extra common fastcgi PHP GeoIP variables: on|off (default: off)
+### Deprecated: `NGINX_FASTCGI_GEOIP` variable
+NGINX_GEOIP=on
 
 ### Google PageSpeed algorithm: on|off (default: off)
 NGINX_PAGESPEED=on
