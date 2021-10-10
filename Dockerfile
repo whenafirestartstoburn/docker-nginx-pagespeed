@@ -98,6 +98,8 @@ RUN cd /tmp && \
 	--with-threads \
 	--with-stream \
 	--with-stream_ssl_module \
+	--with-http_image_filter_module \
+	--with-http_image_filter_module=dynamic \
 	--without-http_autoindex_module \
 	--without-http_browser_module \
 	--without-http_userid_module \
